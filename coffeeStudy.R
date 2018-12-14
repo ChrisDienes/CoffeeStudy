@@ -93,7 +93,7 @@ week_sum <- mydf %>% group_by(DayOfWeek) %>%
             RefillPct = round(100*mean(Refilled),digits=2))
 week_sum$delinquency_pct <- NA
 for(cc in 1:5){
-  week_sum$delinquency_pct[cc] <- custom_emalgo(Nc = 7, 
+  week_sum$delinquency_pct[cc] <- custom_emalgo(Nc = 8, 
                                    n = week_sum$Trials[cc],  
                                    n1 = week_sum$Refills[cc], 
                                    pi = 0.05)$percent
@@ -108,7 +108,7 @@ p <- ggplot(plot_data, aes(x=Day, y=Value, fill = Bars ))+
   scale_fill_manual(values = multiplot_colors) +
   ggtitle("Refill Risk by Day of Week") + 
   theme(plot.title = element_text(hjust = 0.5)) +
-  ylab("Percent") + ylim(0,60)
+  ylab("Percent") + ylim(0,65)
 p
 
 ## daily frequency (2-dim)
@@ -154,7 +154,7 @@ plot_df$Delinquency <- NA
 n1s <- plot_df$Refill
 plot_df$Delinquency <- sapply(n1s, 
                               function(x){
-                                custom_emalgo(Nc = 7, 
+                                custom_emalgo(Nc = 8, 
                                               n = 100,  
                                               n1 = x, 
                                               pi = 0.05)$percent
@@ -185,7 +185,7 @@ halfhr_model <- ksmooth(from_half_hour, refill, "normal", bandwidth = 5)
 n1s <- 100*halfhr_model$y
 halfhr_Delinquency  <- sapply(n1s, 
                               function(x){
-                                custom_emalgo(Nc = 7, 
+                                custom_emalgo(Nc = 8, 
                                               n = 100,  
                                               n1 = x, 
                                               pi = 0.05)$percent
@@ -194,16 +194,16 @@ plot_df <- data.frame(Mins = rep(halfhr_model$x,2),
                       Percent = c(100*halfhr_model$y, halfhr_Delinquency),
                       Lines   =  c(rep("My Refill %", length(halfhr_Delinquency)),
                                    rep("Coworker Delinquency %", length(halfhr_Delinquency))))
-time_lag <- 8
+time_lag <- 7
 plot_df <- plot_df[abs(plot_df$Mins) <= time_lag, ]
 p <- ggplot(plot_df, aes(x = Mins, y = Percent, colour = Lines)) +
   geom_line(size = 2) +
   ylab("Percent") +
-  xlab("Minutes From The Half Hour") +
+  xlab("Minutes from Half Hour") +
   scale_colour_manual(values = multiplot_colors) +
   ylim(0,100) +
   scale_x_continuous(breaks = 2*((-time_lag/2):(time_lag/2)), limits = c(-time_lag, time_lag)) +
-  ggtitle("Refill Risk vs Time From Half Hour") + 
+  ggtitle("Refill Risk vs Time from Half Hour") + 
   theme(plot.title = element_text(hjust = 0.5))
 p
 
