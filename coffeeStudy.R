@@ -207,5 +207,28 @@ p <- ggplot(plot_df, aes(x = Mins, y = Percent, colour = Lines)) +
   theme(plot.title = element_text(hjust = 0.5))
 p
 
+## some bootstraped simulated CIs:
+B = 100000
+sim_result <- rep(NA, B)
+set.seed(123)
+sample_n1s <- rbinom(n = B, size = n, prob = n1/n)
+tab_n1s    <- table(sample_n1s)
+tab_values <- as.numeric(names(tab_n1s)) 
+tab_pcts   <- rep(NA, length(tab_values))
+for(bb in 1:length(tab_values)){
+  tab_pcts[bb] <- custom_emalgo(Nc = 4, n = n,  n1 = tab_values[bb], pi = 0.05)$percent
+}
+boot_percentiles <- cumsum(tab_n1s)/B
+# 2.5 percentile:
+tab_pcts[tail(which(boot_percentiles <= 0.025),1)]
+# 97.5 percentile:
+tab_pcts[which(boot_percentiles >= 0.975)[1]]
+# 95% Bootstrap CIs: 
+# NC = 9: (36, 76)
+# Nc = 8: (25, 71)
+# Nc = 7: (10, 65)
+# Nc = 6: (0, 56)
+# Nc = 5: (0, 41)
+# Nc = 4: (0, 14)
 
 
